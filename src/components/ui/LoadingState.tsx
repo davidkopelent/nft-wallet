@@ -1,12 +1,6 @@
 export default function LoadingState() {
   return (
-    <div className="space-y-8 animate-pulse">
-      {/* Search skeleton */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-        <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-      </div>
-      
+    <div className="space-y-8 animate-pulse">      
       {/* Header skeleton */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex justify-between">
         <div>

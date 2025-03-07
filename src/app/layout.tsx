@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="inter">
         <ThemeProvider>
           <Navbar />
           <main className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-200 dark:from-gray-900 dark:to-gray-800 py-8">

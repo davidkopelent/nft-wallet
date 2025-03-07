@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
 import { DEFAULT_ADDRESS } from '@/lib/blockfrost';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,23 +16,13 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between h-16">
           <div className="flex items-center w-1/4">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <svg className="h-8 w-8 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19.97 6.43L12 2L4.03 6.43L9.1 9.24C9.83 8.48 10.91 8 12 8C13.09 8 14.17 8.48 14.9 9.24L19.97 6.43Z" fill="currentColor" />
-                <path d="M12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8Z" fill="currentColor" />
-                <path d="M18 15.44V9.5L15.55 10.82C15.84 11.5 16 12.23 16 13C16 15.54 14.4 17.69 12 18.5C9.6 17.69 8 15.54 8 13C8 12.23 8.16 11.5 8.45 10.82L6 9.5V15.44L12 19L18 15.44Z" fill="currentColor" />
-              </svg>
+              <Image src="/images/cardano.png" alt="Cardano Wallet Explorer" width={32} height={32} />
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">Cardano Wallet Explorer</span>
             </Link>
-          </div>
-
-          <div className="hidden md:flex items-center justify-center flex-grow space-x-4 w-2/4">
-            <div className="w-full text-center">
-              {abbreviatedAddress}
-            </div>
           </div>
 
           <div className="hidden md:flex items-center justify-end w-1/4">
