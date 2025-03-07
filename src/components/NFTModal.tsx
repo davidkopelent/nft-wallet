@@ -2,6 +2,7 @@
 
 import { NFTAsset } from '@/types/blockfrost';
 import NFTImage from './ui/NFTImage';
+import { getImageUrl } from '@/utils/imageUtils';
 
 interface NFTModalProps {
   nft: NFTAsset;
@@ -9,6 +10,8 @@ interface NFTModalProps {
 }
 
 export default function NFTModal({ nft, onClose }: NFTModalProps) {
+  const imageUrl = getImageUrl(nft.metadata?.image);
+
   // Close modal when clicking outside of content
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -61,7 +64,7 @@ export default function NFTModal({ nft, onClose }: NFTModalProps) {
         <div className="p-4 grid md:grid-cols-2 gap-6">
           <div className="relative aspect-square">
             <NFTImage
-              src={nft.metadata?.image || '/placeholder.png'}
+              src={imageUrl}
               alt={nft.metadata?.name || 'NFT'}
               fill
               className="object-contain rounded-lg"

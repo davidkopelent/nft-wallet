@@ -2,6 +2,7 @@
 
 import { NFTAsset } from '@/types/blockfrost';
 import NFTImage from './ui/NFTImage';
+import { getImageUrl } from '@/utils/imageUtils';
 
 interface NFTCardProps {
   nft: NFTAsset;
@@ -10,6 +11,8 @@ interface NFTCardProps {
 }
 
 export default function NFTCard({ nft, view, onClick }: NFTCardProps) {
+  const imageUrl = getImageUrl(nft.metadata?.image);
+
   return (
     <div 
       className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 ${
@@ -19,7 +22,7 @@ export default function NFTCard({ nft, view, onClick }: NFTCardProps) {
     >
       <div className={view === 'list' ? 'w-24 h-24 relative flex-shrink-0' : 'aspect-square relative'}>
         <NFTImage
-          src={nft.metadata?.image || ''}
+          src={imageUrl}
           alt={nft.metadata?.name || 'NFT'}
           fill
           sizes={view === 'list' ? '96px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
