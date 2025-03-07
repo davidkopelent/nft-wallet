@@ -1,4 +1,4 @@
-import { WalletInfo, Transaction, StakeInfo } from '@/types/blockfrost';
+import { WalletInfo, Transaction, StakeInfo, AccountRegistration } from '@/types/blockfrost';
 
 const BLOCKFROST_API_KEY = 'mainnetRUrPjKhpsagz4aKOCbvfTPHsF0SmwhLc';
 const BLOCKFROST_URL = 'https://cardano-mainnet.blockfrost.io/api/v0';
@@ -9,6 +9,7 @@ interface AssetDetails {
   onchain_metadata?: {
     name: string;
     image: string;
+    logo: string;
     description?: string;
     [key: string]: any;
   };
@@ -69,7 +70,8 @@ export async function getWalletInfo(address: string) {
       addressInfo,
       assets: assetsWithMetadata || [],
       transactions,
-      stakeInfo
+      stakeInfo,
+      controlled_amount: stakeInfo?.controlled_amount || null,
     };
   } catch (error) {
     console.error('Error fetching wallet info:', error);
@@ -79,8 +81,9 @@ export async function getWalletInfo(address: string) {
 
 export async function getAdaPrice(): Promise<number | null> {
   try {
-    // This is a mock API call - in a real app you'd call a price API
-    return 0.45; // Mock ADA price in USD
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd');
+    const data = await response.json();
+    return data.cardano?.usd || null; // Return the ADA price in USD
   } catch (error) {
     console.error('Error fetching ADA price:', error);
     return null;
@@ -94,5 +97,42 @@ export async function getNFTMetadata(asset: string) {
   } catch (error) {
     console.error('Error fetching NFT metadata:', error);
     throw error;
+  }
+}
+
+/**
+ * Get account info including registered stake address name
+ * @param stakeAddress - The stake address to query
+ */
+export async function getAccountInfo(stakeAddress: string) {
+  try {
+    // Use the registrations endpoint to get account metadata
+    const registrations = await blockfrostFetch<AccountRegistration[]>(`/accounts/${stakeAddress}/registrations`);
+    
+    if (!registrations || registrations.length === 0) {
+      return null;
+    }
+
+    // Look for the most recent registration with metadata
+    const registration = registrations.find(reg => reg.action?.metadata?.name);
+    return registration || null;
+
+  } catch (error) {
+    console.error('Error fetching account info:', error);
+    return null;
+  }
+}
+
+/**
+ * Get stake address from payment address
+ * @param address - Cardano payment address
+ */
+export async function getStakeAddress(address: string) {
+  try {
+    const addressInfo = await blockfrostFetch<WalletInfo>(`/addresses/${address}`);
+    return addressInfo?.stake_address || null;
+  } catch (error) {
+    console.error('Error fetching stake address:', error);
+    return null;
   }
 } 

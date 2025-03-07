@@ -4,7 +4,7 @@ export interface WalletInfo {
   stake_address?: string;
   type: string;
   script: boolean;
-}
+} 
 
 export interface Amount {
   unit: string;
@@ -59,4 +59,17 @@ export interface StakeInfo {
   treasury_sum: string;
   withdrawable_amount: string;
   pool_id: string;
+}
+
+export interface AccountRegistration {
+  tx_hash: string;
+  action: {
+    type: string;
+    title?: string;
+    description?: string;
+    metadata?: {
+      name?: string;
+      [key: string]: any;
+    };
+  };
 } 
