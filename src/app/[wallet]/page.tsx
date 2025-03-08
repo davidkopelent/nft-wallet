@@ -7,7 +7,7 @@ export default function Wallet({
 }) {
     return (
         <div className="container max-w-6xl mx-auto px-4">
-            <WalletContainer defaultAddress={params.wallet} />
+            <WalletContainer address={params.wallet} />
         </div>
     );
 }   

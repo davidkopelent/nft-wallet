@@ -1,20 +1,8 @@
-import { WalletInfo, Transaction, StakeInfo, AccountRegistration } from '@/types/blockfrost';
+import { WalletInfo, Transaction, StakeInfo, AccountRegistration, AssetDetails } from '@/types/blockfrost';
 
 const BLOCKFROST_API_KEY = 'mainnetRUrPjKhpsagz4aKOCbvfTPHsF0SmwhLc';
 const BLOCKFROST_URL = 'https://cardano-mainnet.blockfrost.io/api/v0';
-
 export const DEFAULT_ADDRESS = 'addr1x88ttk0fk6ssan4g2uf2xtx3anppy3djftmkg959tufsc6qkqt76lg22kjjmnns37fmyue765qz347sxfnyks27ysqaqd3ph23';
-
-interface AssetDetails {
-  onchain_metadata?: {
-    name: string;
-    image: string;
-    logo: string;
-    description?: string;
-    [key: string]: any;
-  };
-  [key: string]: any;
-}
 
 export async function blockfrostFetch<T>(endpoint: string): Promise<T | null> {
   try {
@@ -52,7 +40,7 @@ export async function getWalletInfo(address: string) {
 
     // Extract non-lovelace assets from the amount array
     const assets = addressInfo?.amount.filter(asset => asset.unit !== 'lovelace') || [];
-    
+
     // Fetch metadata for each asset (limit to 20 for performance)
     const assetsWithMetadata = await Promise.all(
       assets.slice(0, 20).map(async (asset) => {
@@ -108,7 +96,7 @@ export async function getAccountInfo(stakeAddress: string) {
   try {
     // Use the registrations endpoint to get account metadata
     const registrations = await blockfrostFetch<AccountRegistration[]>(`/accounts/${stakeAddress}/registrations`);
-    
+
     if (!registrations || registrations.length === 0) {
       return null;
     }
@@ -135,4 +123,62 @@ export async function getStakeAddress(address: string) {
     console.error('Error fetching stake address:', error);
     return null;
   }
-} 
+}
+
+/**
+ * Fetch NFT transaction history.
+ * @param assetId - The unique identifier of the NFT.
+ */
+export async function getNFTTransactions(assetId: string): Promise<Transaction[] | null> {
+  return await blockfrostFetch<Transaction[]>(`/assets/${assetId}/transactions?order=desc`);
+}
+
+/**
+ * Analyze a transaction to determine if it was an NFT buy/sell.
+ * @param txHash - The transaction hash.
+ * @param assetId - The NFT asset ID.
+ */
+export async function analyzeNFTTransaction(txHash: string, assetId: string) {
+  try {
+    const txDetails = await blockfrostFetch<{ inputs: any[], outputs: any[] }>(`/txs/${txHash}/utxos`);
+    if (!txDetails) return null;
+
+    const inputs = txDetails.inputs;
+    const outputs = txDetails.outputs;
+
+    let sender = null;
+    let receiver = null;
+    let adaSent = 0;
+    let nftTransferred = false;
+
+    // Identify sender, receiver, ADA amount, and NFT transfer
+    for (const input of inputs) {
+      if (input.amount.some(a => a.unit === assetId)) {
+        sender = input.address; // Sender held the NFT
+      }
+      adaSent += input.amount
+        .filter(a => a.unit === 'lovelace')
+        .reduce((sum, a) => sum + parseInt(a.quantity), 0);
+    }
+
+    for (const output of outputs) {
+      if (output.amount.some(a => a.unit === assetId)) {
+        receiver = output.address; // Receiver got the NFT
+        nftTransferred = true;
+      }
+    }
+
+    if (nftTransferred && adaSent > 2_000_000) { // More than ~2 ADA (likely a sale)
+      return { type: 'buy', sender, receiver, adaPaid: adaSent / 1_000_000 };
+    }
+
+    if (nftTransferred && adaSent <= 2_000_000) {
+      return { type: 'transfer', sender, receiver };
+    }
+
+    return { type: 'unknown' };
+  } catch (error) {
+    console.error('Error analyzing NFT transaction:', error);
+    return null;
+  }
+}

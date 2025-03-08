@@ -4,7 +4,18 @@ export interface WalletInfo {
   stake_address?: string;
   type: string;
   script: boolean;
-} 
+}
+
+export interface AssetDetails {
+  onchain_metadata?: {
+    name: string;
+    image: string;
+    logo: string;
+    description?: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
+};
 
 export interface Amount {
   unit: string;
@@ -46,6 +57,20 @@ export interface Transaction {
   tx_index: number;
   block_height: number;
   block_time: number;
+  inputs: {
+    address: string;
+    amount: {
+      unit: string;
+      quantity: string;
+    }[];
+  }[];
+  outputs: {
+    address: string;
+    amount: {
+      unit: string;
+      quantity: string;
+    }[];
+  }[];
 }
 
 export interface StakeInfo {

@@ -10,10 +10,10 @@ import LoadingState from './ui/LoadingState';
 import ErrorState from './ui/ErrorState';
 
 interface WalletContainerProps {
-  defaultAddress: string;
+  address: string;
 }
 
-export default function WalletContainer({ defaultAddress }: WalletContainerProps) {
+export default function WalletContainer({ address }: WalletContainerProps) {
   const [data, setData] = useState<any>(null);
   const [adaPrice, setAdaPrice] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -25,35 +25,48 @@ export default function WalletContainer({ defaultAddress }: WalletContainerProps
       setError(null);
       try {
         const [walletData, price] = await Promise.all([
-          getWalletInfo(defaultAddress),
+          getWalletInfo(address),
           getAdaPrice()
         ]);
+
+        if (!walletData?.addressInfo) {
+          throw new Error('Wallet not found');
+        }
+
         setData(walletData);
         setAdaPrice(price);
       } catch (err) {
-        setError('Error loading wallet information');
-        console.error(err);
+        setError(err instanceof Error ? err.message : 'Failed to load wallet data');
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (defaultAddress) {
+    if (address) {
       fetchWalletInfo();
     }
-  }, [defaultAddress]);
+  }, [address]);
 
   if (isLoading) {
     return <LoadingState />;
   }
 
-  if (error || !data) {
-    return <ErrorState message={error || 'Failed to load wallet data'} />;
+  if (error) {
+    return (
+      <ErrorState 
+        title="Wallet Not Found"
+        message="The wallet address you entered could not be found. Please check the address and try again."
+        action={{
+          label: "Try Another Address",
+          href: "/"
+        }}
+      />
+    );
   }
 
   return (
     <div className="space-y-8">
-      <WalletHeader address={defaultAddress} />
+      <WalletHeader address={address} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <WalletOverview 
@@ -62,7 +75,10 @@ export default function WalletContainer({ defaultAddress }: WalletContainerProps
             adaPrice={adaPrice} 
           />
           <div className="mt-8">
-            <TransactionList transactions={data.transactions || []} />
+            <TransactionList 
+              transactions={data.transactions || []} 
+              walletAddress={address} 
+            />
           </div>
         </div>
         <div className="lg:col-span-2">

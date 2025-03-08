@@ -6,6 +6,10 @@
  */
 export const toAda = (lovelace: number | string, decimals: number = 2): string => {
   const amount = Number(lovelace) / 1_000_000;
+  // Set decimals to 0 if amount is equal to zero
+  if (amount === 0) {
+    decimals = 0;
+  }
   return amount.toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
