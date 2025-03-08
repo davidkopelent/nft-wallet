@@ -27,7 +27,7 @@ export default function WalletSearch({ address = '', onAddressChange }: WalletSe
   };
 
   return (
-    <div className="bg-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-all">
+    <div className="bg-white max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-all">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <div className="mt-1 flex rounded-md">
