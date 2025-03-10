@@ -1,4 +1,12 @@
 import WalletContainer from '@/components/WalletContainer';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: { wallet: string } }): Promise<Metadata> {
+    return {
+        title: `Wallet: ${params.wallet}`,
+        description: 'A simple wallet for Cardano NFTs',
+    }
+};
 
 export default function Wallet({
     params,
