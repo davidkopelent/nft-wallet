@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="inter">
         <NextTopLoader 
-          color="rgb(253, 111, 77)" // Blue color matching your theme
+          color="rgb(253, 111, 77)"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
