@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'nextjs-toploader/app';
+import { useState } from 'react';
 
 interface WalletSearchProps {
   address?: string;
@@ -9,8 +9,8 @@ interface WalletSearchProps {
 }
 
 export default function WalletSearch({ address = '', onAddressChange }: WalletSearchProps) {
-  const [inputValue, setInputValue] = useState(address);
   const router = useRouter();
+  const [inputValue, setInputValue] = useState(address);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
