@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 interface ErrorStateProps {
   title: string;
   message: string;
@@ -18,12 +20,12 @@ export default function ErrorState({ title, message, action }: ErrorStateProps) 
           {message}
         </p>
         {action && (
-          <a
+          <Link
             href={action.href}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-orange-gradient hover:bg-orange-gradient"
           >
             {action.label}
-          </a>
+          </Link>
         )}
       </div>
     </div>
