@@ -1,54 +1,55 @@
 'use client';
 
+import { useState } from 'react';
+
 interface WalletHeaderProps {
   address: string;
 }
 
 export default function WalletHeader({ address }: WalletHeaderProps) {
-  // Abbreviate the address for display
-  const abbreviatedAddress = address.length > 20 
-    ? `${address.substring(0, 10)}...${address.substring(address.length - 10)}`
-    : address;
+  const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(address);
+    setCopied(true);
+    
+    // Reset the copied state after 2 seconds
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-slate-100 dark:border-slate-700 p-4 sm:p-6 transition-all">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Wallet Overview</h2>
-        <div className="flex items-center mt-2">
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">{abbreviatedAddress}</p>
-          <button 
-            onClick={handleCopy}
-            className="ml-2 text-blue-600 hover:text-blue-800 dark:text-indigo-400 dark:hover:text-indigo-300"
-            aria-label="Copy address to clipboard"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-            </svg>
-          </button>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Wallet overview</h2>
+        <div className="flex flex-col mt-2">
+          <div className="w-full overflow-hidden">
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-mono break-all">{address}</p>
+          </div>
+          <div className="mt-2">
+            <button
+              onClick={handleCopy}
+              className="px-3 py-1 rounded-full transition-colors bg-orange-gradient text-white hover:bg-orange-gradient flex items-center"
+              aria-label="Copy address to clipboard"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" className="mr-1">
+                <g id="SVGRepo_iconCarrier">
+                  <path d="M17.5 14H19C20.1046 14 21 13.1046 21 12V5C21 3.89543 20.1046 3 19 3H12C10.8954 3 10 3.89543 10 5V6.5M5 10H12C13.1046 10 14 10.8954 14 12V19C14 20.1046 13.1046 21 12 21H5C3.89543 21 3 20.1046 3 19V12C3 10.8954 3.89543 10 5 10Z" 
+                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </g>
+              </svg>
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+            
+            {/* Accessibility announcement for screen readers */}
+            {copied && (
+              <span className="sr-only" role="status" aria-live="polite">
+                Address copied to clipboard
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-      <div className="flex space-x-2">
-        <a 
-          href={`https://cardanoscan.io/address/${address}`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-sm px-3 py-1 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
-        >
-          View on CardanoScan
-        </a>
-        <a 
-          href={`https://pool.pm/${address}`}
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-sm px-3 py-1 bg-purple-50 text-purple-600 rounded-full hover:bg-purple-100 transition-colors dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800"
-        >
-          View on Pool.pm
-        </a>
       </div>
     </div>
   );

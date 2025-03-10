@@ -82,7 +82,7 @@ export default function WalletContainer({ address }: WalletContainerProps) {
           </div>
         </div>
         <div className="lg:col-span-2">
-          <NFTGallery assets={data.assets || []} />
+          <NFTGallery assets={data.assets || []} walletAddress={address} />
         </div>
       </div>
     </div>

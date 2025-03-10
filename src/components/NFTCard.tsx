@@ -15,7 +15,7 @@ export default function NFTCard({ nft, view, onClick }: NFTCardProps) {
 
   return (
     <div 
-      className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 ${
+      className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-slate-100 dark:border-slate-700 ${
         view === 'list' ? 'flex items-center' : ''
       } hover:shadow-md transition-shadow cursor-pointer`}
       onClick={onClick}

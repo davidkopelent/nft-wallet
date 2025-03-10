@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { WalletInfo, StakeInfo } from '@/types/blockfrost';
-import { formatAda, shortenAda } from '@/utils/format';
-import { getAccountInfo, getStakeAddress } from '@/lib/blockfrost';
+import { formatAda } from '@/utils/format';
+import { getAccountInfo } from '@/lib/blockfrost';
 
 interface WalletOverviewProps {
   data: WalletInfo;
@@ -40,38 +40,40 @@ export default function WalletOverview({ data, stakeInfo, adaPrice }: WalletOver
   // Calculate the ADA balance
   const adaAmount = data.amount.find(a => a.unit === 'lovelace');
   const adaBalance = adaAmount ? Number(adaAmount.quantity) / 1000000 : 0;
-  
-  // Calculate USD value if we have a price
-  const usdValue = adaPrice ? adaBalance * adaPrice : null;
 
   // Calculate staking rewards if available
   const totalRewards = stakeInfo ? Number(stakeInfo.rewards_sum) / 1000000 : null;
 
+  // Calculate USD values
+  const getUsdValue = (adaAmount: number): string => {
+    if (!adaPrice) return '';
+    const usdValue = adaAmount * adaPrice;
+    return `(≈ ${usdValue.toLocaleString('en-US', { maximumFractionDigits: 2 })} USD)`;
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden transition-all">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-slate-100 dark:border-slate-700 overflow-hidden transition-all">
       <div className="p-6">
         {isLoadingName ? (
           <div className="mb-4 h-8 animate-pulse bg-gray-200 dark:bg-gray-700 rounded"></div>
         ) : accountName && (
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Account Name</h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Account name</h3>
             <p className="text-lg text-gray-900 dark:text-white">{accountName}</p>
           </div>
         )}
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Balance</h2>
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Balance</h2>
         <div className="flex items-baseline">
-          <span className="text-4xl font-bold text-blue-600 dark:text-indigo-400">{formatAda(adaAmount.quantity, { decimals: 4, showSymbol: false })}</span>
+          <span className="text-4xl font-bold text-orange-gradient">{formatAda(adaAmount.quantity, { decimals: 4, showSymbol: false })}</span>
           <span className="ml-1 text-xl text-gray-500 dark:text-gray-400">₳</span>
         </div>
-        {usdValue && (
           <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            ≈ {usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+            {getUsdValue(adaBalance)}
           </div>
-        )}
       </div>
       
       {stakeInfo && (
-        <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="border-t border-slate-100 dark:border-slate-700 px-6 py-4">
           <h3 className="text-md font-medium text-gray-900 dark:text-white mb-2">Staking</h3>
           <div className="space-y-2">
             <div className="flex justify-between">
@@ -89,27 +91,41 @@ export default function WalletOverview({ data, stakeInfo, adaPrice }: WalletOver
               </div>
             )}
             <div className="flex justify-between">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Controlled Amount</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Controlled amount</span>
+              <div className="text-right">
                 <span className="text-sm text-gray-800 dark:text-gray-200">
                   {formatAda(stakeInfo.controlled_amount, { decimals: 4, showSymbol: false })} ₳
                 </span>
+                {adaPrice && (
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {getUsdValue(Number(stakeInfo.controlled_amount) / 1000000)}
+                  </div>
+                )}
               </div>
+            </div>
             {totalRewards !== null && (
               <div className="flex justify-between">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Total Rewards</span>
-                <span className="text-sm text-gray-800 dark:text-gray-200">
-                  {formatAda(totalRewards, { decimals: 4, showSymbol: false })} ₳
-                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">Total rewards</span>
+                <div className="text-right">
+                  <span className="text-sm text-gray-800 dark:text-gray-200">
+                    {formatAda(totalRewards, { decimals: 7, showSymbol: false })} ₳
+                  </span>
+                  {adaPrice && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {getUsdValue(totalRewards / 1000000)}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
         </div>
       )}
       
-      <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+      <div className="border-t border-slate-100 dark:border-slate-700 px-6 py-4">
         <h3 className="text-md font-medium text-gray-900 dark:text-white mb-2">Assets</h3>
         <div className="flex justify-between">
-          <span className="text-sm text-gray-500 dark:text-gray-400">Total Assets</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Total assets</span>
           <span className="text-sm text-gray-800 dark:text-gray-200">
             {data.amount.length}
           </span>

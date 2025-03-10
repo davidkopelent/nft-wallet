@@ -1,18 +1,24 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { NFTAsset } from '@/types/blockfrost';
 import NFTCard from './NFTCard';
-import NFTModal from './NFTModal';
+import NFTModal from './modals/NFTModal';
+import { getWalletNFTs } from '@/lib/blockfrost';
 
 interface NFTGalleryProps {
   assets: NFTAsset[];
+  walletAddress: string;
 }
 
-export default function NFTGallery({ assets }: NFTGalleryProps) {
+export default function NFTGallery({ assets: initialAssets, walletAddress }: NFTGalleryProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
   const [selectedNFT, setSelectedNFT] = useState<NFTAsset | null>(null);
+  const [assets, setAssets] = useState<NFTAsset[]>(initialAssets);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(initialAssets.length >= 20);
   
   // Filter NFTs with metadata and images
   const nfts = useMemo(() => {
@@ -33,8 +39,38 @@ export default function NFTGallery({ assets }: NFTGalleryProps) {
     setSelectedNFT(null);
   };
 
+  const loadMore = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      const nextPage = page + 1;
+      const moreAssets = await getWalletNFTs(walletAddress, nextPage);
+      
+      if (moreAssets.length === 0) {
+        setHasMore(false);
+      } else {
+        // Deduplicate assets by their unit (unique identifier)
+        const existingUnits = new Set(assets.map(asset => asset.unit));
+        const newAssets = moreAssets.filter(asset => !existingUnits.has(asset.unit));
+        
+        if (newAssets.length === 0) {
+          setHasMore(false);
+        } else {
+          setAssets(prev => [...prev, ...newAssets]);
+          setPage(nextPage);
+          setHasMore(moreAssets.length >= 20);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading more NFTs:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-all">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-slate-100 dark:border-slate-700 p-6 transition-all">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">NFT Collection</h2>
         
@@ -45,7 +81,7 @@ export default function NFTGallery({ assets }: NFTGalleryProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search NFTs..."
-              className="block w-full h-full pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full h-full pl-3 pr-10 py-2 border border-slate-100 dark:border-slate-700 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-orange-gradient focus:border-orange-gradient sm:text-sm"
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -59,7 +95,7 @@ export default function NFTGallery({ assets }: NFTGalleryProps) {
               onClick={() => setView('grid')}
               className={`px-3 py-2 rounded-md ${
                 view === 'grid' 
-                  ? 'bg-blue-50 text-blue-600 dark:bg-indigo-900 dark:text-indigo-200' 
+                  ? 'bg-orange-gradient text-white' 
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               } transition-colors`}
             >
@@ -69,7 +105,7 @@ export default function NFTGallery({ assets }: NFTGalleryProps) {
               onClick={() => setView('list')}
               className={`px-3 py-2 rounded-md ${
                 view === 'list' 
-                  ? 'bg-blue-50 text-blue-600 dark:bg-indigo-900 dark:text-indigo-200' 
+                  ? 'bg-orange-gradient text-white' 
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               } transition-colors`}
             >
@@ -90,20 +126,34 @@ export default function NFTGallery({ assets }: NFTGalleryProps) {
           </p>
         </div>
       ) : (
-        <div className={`grid ${
-          view === 'grid' 
-            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' 
-            : 'grid-cols-1 gap-4'
-        }`}>
-          {nfts.map((nft) => (
-            <NFTCard 
-              key={nft.unit} 
-              nft={nft} 
-              view={view} 
-              onClick={() => handleNFTClick(nft)}
-            />
-          ))}
-        </div>
+        <>
+          <div className={`grid ${
+            view === 'grid' 
+              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' 
+              : 'grid-cols-1 gap-4'
+          }`}>
+            {nfts.map((nft) => (
+              <NFTCard 
+                key={nft.unit} 
+                nft={nft} 
+                view={view} 
+                onClick={() => handleNFTClick(nft)}
+              />
+            ))}
+          </div>
+          
+          {hasMore && (
+            <div className="mt-8 mb-2 text-center">
+              <button
+                onClick={loadMore}
+                disabled={isLoading}
+                className="px-4 py-2 bg-orange-gradient text-white rounded-md hover:bg-orange-gradient focus:outline-none focus:ring-2 focus:ring-orange-gradient focus:ring-offset-2 disabled:opacity-50 transition-colors"
+              >
+                {isLoading ? 'Loading...' : 'Load More NFTs'}
+              </button>
+            </div>
+          )}
+        </>
       )}
       
       {selectedNFT && (
