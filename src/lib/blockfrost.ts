@@ -1,4 +1,4 @@
-import { WalletInfo, Transaction, StakeInfo, AccountRegistration, AssetDetails } from '@/types/blockfrost';
+import { WalletInfo, Transaction, StakeInfo, AccountRegistration, AssetDetails, NFTAsset } from '@/types/blockfrost';
 
 const BLOCKFROST_API_KEY = 'mainnetRUrPjKhpsagz4aKOCbvfTPHsF0SmwhLc';
 const BLOCKFROST_URL = 'https://cardano-mainnet.blockfrost.io/api/v0';
@@ -180,5 +180,72 @@ export async function analyzeNFTTransaction(txHash: string, assetId: string) {
   } catch (error) {
     console.error('Error analyzing NFT transaction:', error);
     return null;
+  }
+}
+
+/**
+ * Get wallet NFTs with pagination support
+ * @param address - Wallet address
+ * @param page - Page number (1-based)
+ * @param limit - Number of NFTs per page
+ */
+export async function getWalletNFTs(address: string, page = 1, limit = 20): Promise<NFTAsset[]> {
+  try {
+    // Get address info
+    const addressInfo = await blockfrostFetch<WalletInfo>(`/addresses/${address}`);
+    
+    if (!addressInfo) return [];
+    
+    // Extract non-lovelace assets from the amount array
+    const assets = addressInfo.amount.filter(asset => asset.unit !== 'lovelace') || [];
+    
+    // Calculate pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    
+    // Fetch metadata for paginated assets
+    const assetsWithMetadata = await Promise.all(
+      assets.slice(startIndex, endIndex).map(async (asset) => {
+        const metadata = await blockfrostFetch<AssetDetails>(`/assets/${asset.unit}`);
+        return {
+          ...asset,
+          metadata: metadata?.onchain_metadata || null,
+          policyId: asset.unit.slice(0, 56),
+          assetName: asset.unit.slice(56)
+        };
+      })
+    );
+    
+    return assetsWithMetadata || [];
+  } catch (error) {
+    console.error('Error fetching wallet NFTs:', error);
+    return [];
+  }
+}
+
+/**
+ * Get wallet transactions with pagination support
+ * @param address - Wallet address
+ * @param page - Page number (1-based)
+ * @param limit - Number of transactions per page
+ */
+export async function getWalletTransactions(
+  address: string, 
+  page = 1, 
+  limit = 25
+): Promise<Transaction[]> {
+  try {
+    // Calculate the offset (0-based)
+    const offset = (page - 1) * limit;
+    
+    // Fetch paginated transactions
+    const transactions = await blockfrostFetch<Transaction[]>(
+      `/addresses/${address}/transactions?order=desc&page=${page}&count=${limit}`
+    );
+    
+    return transactions || [];
+  } catch (error) {
+    console.error('Error fetching wallet transactions:', error);
+    return [];
   }
 }
