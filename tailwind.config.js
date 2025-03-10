@@ -11,9 +11,11 @@ module.exports = {
     extend: {
       colors: {
         'gray-750': '#2D3748',
+        'orange-gradient': 'rgb(253, 111, 77)',
       },
       backgroundColor: {
         'gray-750': '#2D3748',
+        'orange-gradient': 'rgb(253, 111, 77)',
       },
     },
   },
