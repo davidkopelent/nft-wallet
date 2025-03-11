@@ -7,6 +7,7 @@ import WalletOverview from './WalletOverview';
 import NFTGallery from './NFTGallery';
 import TransactionList from './TransactionList';
 import ErrorState from './ui/ErrorState';
+import ErrorAlert from './ui/ErrorAlert';
 
 interface WalletContainerProps {
   address: string;
@@ -21,55 +22,72 @@ export default function WalletContainer({ address }: WalletContainerProps) {
     nfts: true
   });
   const [error, setError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchWalletInfo = async () => {
-      setLoadingStates({
-        overview: true,
-        transactions: true,
-        nfts: true
-      });
-      setError(null);
+  const handleRetry = () => {
+    if (address) {
+      fetchWalletInfo();
+    }
+  };
 
-      try {
-        // Fetch ADA price first as it's fast and useful for all components
-        const price = await getAdaPrice();
-        setAdaPrice(price);
+  const fetchWalletInfo = async () => {
+    setLoadingStates({
+      overview: true,
+      transactions: true,
+      nfts: true
+    });
+    setError(null);
+    setApiError(null);
 
-        // Fetch main wallet data
-        const walletData = await getWalletInfo(address);
+    try {
+      // Fetch ADA price first as it's fast and useful for all components
+      const price = await getAdaPrice();
+      setAdaPrice(price);
 
-        if (!walletData?.addressInfo) {
-          throw new Error('Wallet not found');
-        }
+      // Fetch main wallet data
+      const walletData = await getWalletInfo(address);
 
-        setData(walletData);
+      if (!walletData?.addressInfo) {
+        throw new Error('Wallet not found');
+      }
 
-        // Update loading states progressively
+      setData(walletData);
+
+      // Update loading states progressively
+      setLoadingStates(prev => ({
+        ...prev,
+        overview: false,
+        transactions: false,
+      }));
+
+      // NFTs typically take longer to load, so update that state last
+      setTimeout(() => {
         setLoadingStates(prev => ({
           ...prev,
-          overview: false,
-          transactions: false,
+          nfts: false,
         }));
+      }, 300); // Small delay to give a progressive feeling
 
-        // NFTs typically take longer to load, so update that state last
-        setTimeout(() => {
-          setLoadingStates(prev => ({
-            ...prev,
-            nfts: false,
-          }));
-        }, 300); // Small delay to give a progressive feeling
+    } catch (err) {
+      console.error('Wallet fetch error:', err);
 
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load wallet data');
-        setLoadingStates({
-          overview: false,
-          transactions: false,
-          nfts: false
-        });
+      // Handle critical errors (like wallet not found)
+      if (err instanceof Error && err.message.includes('not found')) {
+        setError(err.message);
+      } else {
+        // Set API error message
+        setApiError('Failed to load wallet data. Please try again later.');
       }
-    };
 
+      setLoadingStates({
+        overview: false,
+        transactions: false,
+        nfts: false
+      });
+    }
+  };
+
+  useEffect(() => {
     if (address) {
       fetchWalletInfo();
     }
@@ -91,6 +109,15 @@ export default function WalletContainer({ address }: WalletContainerProps) {
   return (
     <div className="space-y-8">
       <WalletHeader address={address} />
+
+      {/* Error alert for API errors */}
+      {apiError && (
+        <ErrorAlert
+          message={apiError}
+          onRetry={handleRetry}
+        />
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <WalletOverview

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Transaction } from '@/types/blockfrost';
 import { getWalletTransactions } from '@/lib/blockfrost';
 import { useModal } from '@/hooks/useModal';
+import ErrorAlert from '../ui/ErrorAlert';
 
 interface TransactionModalProps {
   walletAddress: string;
@@ -21,13 +22,16 @@ export default function TransactionModal({
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [expandedTxs, setExpandedTxs] = useState<Set<string>>(new Set());
+  const [error, setError] = useState<string | null>(null);
   const { handleBackdropClick } = useModal({ onClose });
 
   // Load more transactions when clicking the "Load more" button
   const loadMoreTransactions = async () => {
     if (isLoading) return;
-
+    
+    setError(null);
     setIsLoading(true);
+    
     try {
       const nextPage = page + 1;
       const moreTransactions = await getWalletTransactions(walletAddress, nextPage, 25);
@@ -37,10 +41,11 @@ export default function TransactionModal({
       } else {
         setTransactions(prev => [...prev, ...moreTransactions]);
         setPage(nextPage);
-        setHasMore(moreTransactions.length === 25); // Assume there are more if we got a full page
+        setHasMore(moreTransactions.length === 25);
       }
     } catch (error) {
       console.error('Error loading more transactions:', error);
+      setError('Unable to load transactions. Please try again later.');
       setHasMore(false);
     } finally {
       setIsLoading(false);
@@ -88,6 +93,13 @@ export default function TransactionModal({
         </div>
 
         <div className="overflow-y-auto flex-grow">
+          {error && (
+            <ErrorAlert 
+              message={error} 
+              onRetry={loadMoreTransactions} 
+            />
+          )}
+          
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
               <tr>
@@ -214,7 +226,7 @@ export default function TransactionModal({
             </tbody>
           </table>
 
-          {hasMore && (
+          {hasMore && !isLoading && (
             <div className="flex justify-center pt-4 pb-6">
               <button
                 onClick={loadMoreTransactions}

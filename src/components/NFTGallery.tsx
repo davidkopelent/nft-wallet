@@ -6,6 +6,7 @@ import NFTCard from './NFTCard';
 import NFTModal from './modals/NFTModal';
 import { getWalletNFTs } from '@/lib/blockfrost';
 import NFTSkeleton from './ui/NFTSkeleton';
+import ErrorAlert from './ui/ErrorAlert';
 
 interface NFTGalleryProps {
   assets: NFTAsset[];
@@ -21,6 +22,7 @@ export default function NFTGallery({ assets: initialAssets, walletAddress, isLoa
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initialAssets.length > 0);
+  const [error, setError] = useState<string | null>(null);
 
   // Update assets when initialAssets change
   useEffect(() => {
@@ -50,10 +52,11 @@ export default function NFTGallery({ assets: initialAssets, walletAddress, isLoa
     setSelectedNFT(null);
   };
 
-  const loadMore = async () => {
+  const handleLoadMore = async () => {
     if (loadingMore) return;
-
     setLoadingMore(true);
+    setError(null);
+    
     try {
       const nextPage = page + 1;
       const moreAssets = await getWalletNFTs(walletAddress, nextPage);
@@ -72,8 +75,9 @@ export default function NFTGallery({ assets: initialAssets, walletAddress, isLoa
           setHasMore(moreAssets.length >= 20);
         }
       }
-    } catch (error) {
-      console.error('Error loading more NFTs:', error);
+    } catch (err) {
+      console.error('Error loading more NFTs:', err);
+      setError('Failed to load more NFTs. Please try again.');
     } finally {
       setLoadingMore(false);
     }
@@ -128,6 +132,8 @@ export default function NFTGallery({ assets: initialAssets, walletAddress, isLoa
         </div>
       </div>
 
+      {error && <ErrorAlert message={error} onRetry={handleLoadMore} />}
+
       {isLoading ? (
         <div className={`grid ${view === 'grid'
           ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
@@ -164,7 +170,7 @@ export default function NFTGallery({ assets: initialAssets, walletAddress, isLoa
           {hasMore && (
             <div className="mt-8 mb-2 text-center">
               <button
-                onClick={loadMore}
+                onClick={handleLoadMore}
                 disabled={loadingMore}
                 className="px-4 py-2 bg-orange-gradient text-white rounded-md hover:bg-orange-gradient focus:outline-none focus:ring-2 focus:ring-orange-gradient focus:ring-offset-2 disabled:opacity-50 transition-colors"
               >
