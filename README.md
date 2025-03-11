@@ -20,7 +20,8 @@ Cardano Wallet Explorer is a modern web application that allows users to explore
 1. Enter a Cardano wallet address in the search box on the homepage
 2. View the wallet overview, NFT collection, and transaction history
 3. Click on any NFT to see detailed information in a modal
-4. Click on any transaction to see detailed information and links to external explorers
+4. Click on View all transactions to see all transactions for the wallet in a modal
+5. Click on any transaction to see detailed information and links to external explorers
 
 ## Technologies Used
 
