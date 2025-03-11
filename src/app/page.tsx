@@ -1,4 +1,5 @@
 import WalletSearch from "@/components/WalletSearch";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -7,6 +8,9 @@ export default function Home() {
       <p className="text-center text-gray-600 mb-8">Explore Cardano wallets and their associated stake addresses.</p>
       <div className="max-w-6xl mx-auto px-4">
         <WalletSearch />
+      </div>
+      <div className="max-w-6xl w-full text-center mx-auto px-4 py-4">
+        <Link href={`/${process.env.DEFAULT_ADDRESS}`} className="text-center text-gray-600 mb-8">Default address: {process.env.DEFAULT_ADDRESS}</Link>
       </div>
     </div>
   );

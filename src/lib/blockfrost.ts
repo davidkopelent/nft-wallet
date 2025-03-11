@@ -1,14 +1,12 @@
-import { WalletInfo, Transaction, StakeInfo, AccountRegistration, AssetDetails, NFTAsset } from '@/types/blockfrost';
+'use server';
 
-const BLOCKFROST_API_KEY = 'mainnetRUrPjKhpsagz4aKOCbvfTPHsF0SmwhLc';
-const BLOCKFROST_URL = 'https://cardano-mainnet.blockfrost.io/api/v0';
-export const DEFAULT_ADDRESS = 'addr1x88ttk0fk6ssan4g2uf2xtx3anppy3djftmkg959tufsc6qkqt76lg22kjjmnns37fmyue765qz347sxfnyks27ysqaqd3ph23';
+import { WalletInfo, Transaction, StakeInfo, AssetDetails, NFTAsset } from '@/types/blockfrost';
 
 export async function blockfrostFetch<T>(endpoint: string): Promise<T | null> {
   try {
-    const response = await fetch(`${BLOCKFROST_URL}${endpoint}`, {
+    const response = await fetch(`${process.env.BLOCKFROST_URL}${endpoint}`, {
       headers: {
-        "project_id": BLOCKFROST_API_KEY,
+        "project_id": process.env.BLOCKFROST_API_KEY,
         "Content-Type": "application/json",
       },
       next: { revalidate: 60 } // Cache for 60 seconds
