@@ -1,5 +1,5 @@
 /**
- * Converts lovelace (smallest unit) to ADA with proper formatting
+ * Converts lovelace to ADA with proper formatting
  * @param lovelace - Amount in lovelace (1 ADA = 1,000,000 lovelace)
  * @param decimals - Number of decimal places to show (default: 2)
  * @returns Formatted string with ADA amount

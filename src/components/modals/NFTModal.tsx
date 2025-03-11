@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
 import { NFTAsset } from '@/types/blockfrost';
 import NFTImage from '../ui/NFTImage';
 import { getImageUrl } from '@/utils/imageUtils';
+import { useModal } from '@/hooks/useModal';
 
 interface NFTModalProps {
   nft: NFTAsset;
@@ -12,36 +12,7 @@ interface NFTModalProps {
 
 export default function NFTModal({ nft, onClose }: NFTModalProps) {
   const imageUrl = getImageUrl(nft.metadata?.image);
-
-  // Prevent body scrolling when modal is open
-  useEffect(() => {
-    // Add no-scroll class to body
-    document.body.classList.add('overflow-hidden');
-    
-    // Clean up function to remove the class when component unmounts
-    return () => {
-      document.body.classList.remove('overflow-hidden');
-    };
-  }, []);
-
-  // Close modal when clicking outside of content
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  // Close modal when pressing Escape key
-  useEffect(() => {
-    const handleEscKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleEscKey);
-    return () => window.removeEventListener('keydown', handleEscKey);
-  }, [onClose]);
+  const { handleBackdropClick } = useModal({ onClose });
 
   // Check if attributes exist and convert to array if needed
   const getAttributes = () => {

@@ -72,8 +72,7 @@ export default function NFTImage({
         alt={alt}
         width={dimensions[size].width}
         height={dimensions[size].height}
-        className={`object-cover w-full h-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
-          } ${isError ? 'opacity-70' : ''}`}
+        className={`object-cover w-full h-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${isError ? 'opacity-70' : ''}`}
         sizes={getSizes()}
         priority={priority}
         loading={priority ? 'eager' : 'lazy'}
