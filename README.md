@@ -39,6 +39,7 @@ Cardano Wallet Explorer is a modern web application that allows users to explore
 │ │ ├── modals/ # Modal components
 │ │ └── ui/ # Reusable UI components
 │ ├── context/ # React context (e.g., theme)
+│ ├── hooks/ # Custom hooks
 │ ├── lib/ # API and utility functions
 │ ├── types/ # TypeScript type definitions
 │ └── utils/ # Helper functions
