@@ -1,13 +1,19 @@
 import { WalletInfo, StakeInfo } from '@/types/blockfrost';
 import { formatAda } from '@/utils/format';
+import WalletOverviewSkeleton from './ui/WalletOverviewSkeleton';
 
 interface WalletOverviewProps {
   data: WalletInfo;
   stakeInfo: StakeInfo | null;
   adaPrice: number | null;
+  isLoading?: boolean;
 }
 
-export default function WalletOverview({ data, stakeInfo, adaPrice }: WalletOverviewProps) {
+export default function WalletOverview({ data, stakeInfo, adaPrice, isLoading = false }: WalletOverviewProps) {
+  if (isLoading) {
+    return <WalletOverviewSkeleton />;
+  }
+
   if (!data) return null;
 
   // Calculate the ADA balance

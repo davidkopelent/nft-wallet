@@ -88,7 +88,7 @@ export default function NFTModal({ nft, onClose }: NFTModalProps) {
             <NFTImage 
               src={imageUrl} 
               alt={nft.metadata?.name || 'NFT'} 
-              fill={true}
+              size="detail"
               className="object-contain"
             />
           </div>
