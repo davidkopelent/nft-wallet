@@ -1,9 +1,5 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import { WalletInfo, StakeInfo } from '@/types/blockfrost';
 import { formatAda } from '@/utils/format';
-import { getAccountInfo } from '@/lib/blockfrost';
 
 interface WalletOverviewProps {
   data: WalletInfo;
@@ -12,29 +8,6 @@ interface WalletOverviewProps {
 }
 
 export default function WalletOverview({ data, stakeInfo, adaPrice }: WalletOverviewProps) {
-  const [accountName, setAccountName] = useState<string | null>(null);
-  const [isLoadingName, setIsLoadingName] = useState(false);
-
-  useEffect(() => {
-    async function fetchAccountName() {
-      if (!data.stake_address) return;
-      
-      setIsLoadingName(true);
-      try {
-        const accountInfo = await getAccountInfo(data.stake_address);
-        if (accountInfo?.action?.metadata?.name) {
-          setAccountName(accountInfo.action.metadata.name);
-        }
-      } catch (error) {
-        console.error('Error fetching account name:', error);
-      } finally {
-        setIsLoadingName(false);
-      }
-    }
-
-    fetchAccountName();
-  }, [data.stake_address]);
-
   if (!data) return null;
 
   // Calculate the ADA balance
@@ -44,7 +17,7 @@ export default function WalletOverview({ data, stakeInfo, adaPrice }: WalletOver
   // Calculate staking rewards if available
   const totalRewards = stakeInfo ? Number(stakeInfo.rewards_sum) / 1000000 : null;
 
-  // Calculate USD values
+  // Calculate USD values from ADA price
   const getUsdValue = (adaAmount: number): string => {
     if (!adaPrice) return '';
     const usdValue = adaAmount * adaPrice;
@@ -54,24 +27,16 @@ export default function WalletOverview({ data, stakeInfo, adaPrice }: WalletOver
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-slate-100 dark:border-slate-700 overflow-hidden transition-all">
       <div className="p-6">
-        {isLoadingName ? (
-          <div className="mb-4 h-8 animate-pulse bg-gray-200 dark:bg-gray-700 rounded"></div>
-        ) : accountName && (
-          <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Account name</h3>
-            <p className="text-lg text-gray-900 dark:text-white">{accountName}</p>
-          </div>
-        )}
         <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Balance</h2>
         <div className="flex items-baseline">
           <span className="text-4xl font-bold text-orange-gradient">{formatAda(adaAmount.quantity, { decimals: 4, showSymbol: false })}</span>
           <span className="ml-1 text-xl text-gray-500 dark:text-gray-400">₳</span>
         </div>
-          <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {getUsdValue(adaBalance)}
-          </div>
+        <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {getUsdValue(adaBalance)}
+        </div>
       </div>
-      
+
       {stakeInfo && (
         <div className="border-t border-slate-100 dark:border-slate-700 px-6 py-4">
           <h3 className="text-md font-medium text-gray-900 dark:text-white mb-2">Staking</h3>
@@ -121,7 +86,7 @@ export default function WalletOverview({ data, stakeInfo, adaPrice }: WalletOver
           </div>
         </div>
       )}
-      
+
       <div className="border-t border-slate-100 dark:border-slate-700 px-6 py-4">
         <h3 className="text-md font-medium text-gray-900 dark:text-white mb-2">Assets</h3>
         <div className="flex justify-between">

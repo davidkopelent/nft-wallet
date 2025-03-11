@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       // First, try to get the theme from localStorage
       const storedTheme = localStorage.getItem('theme') as Theme | null;
-      
+
       if (storedTheme) {
         // Use stored theme if available
         setTheme(storedTheme);
@@ -30,7 +30,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         setTheme(prefersDark ? 'dark' : 'light');
       }
-      
+
       setIsInitialized(true);
     }
   }, []);
@@ -38,15 +38,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Apply theme class to document
   useEffect(() => {
     if (!isInitialized) return;
-    
+
     const root = document.documentElement;
-    
+
     if (theme === 'dark') {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-    
+
     // Save theme preference to localStorage
     localStorage.setItem('theme', theme);
   }, [theme, isInitialized]);

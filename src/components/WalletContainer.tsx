@@ -53,7 +53,7 @@ export default function WalletContainer({ address }: WalletContainerProps) {
 
   if (error) {
     return (
-      <ErrorState 
+      <ErrorState
         title="Wallet Not Found"
         message="The wallet address you entered could not be found. Please check the address and try again."
         action={{
@@ -69,15 +69,15 @@ export default function WalletContainer({ address }: WalletContainerProps) {
       <WalletHeader address={address} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
-          <WalletOverview 
-            data={data.addressInfo} 
+          <WalletOverview
+            data={data.addressInfo}
             stakeInfo={data.stakeInfo}
-            adaPrice={adaPrice} 
+            adaPrice={adaPrice}
           />
           <div className="mt-8">
-            <TransactionList 
-              transactions={data.transactions || []} 
-              walletAddress={address} 
+            <TransactionList
+              transactions={data.transactions || []}
+              walletAddress={address}
             />
           </div>
         </div>

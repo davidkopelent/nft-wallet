@@ -10,15 +10,7 @@ export const formatIpfsUrl = (imageUrl: string | string[]): string => {
   // Remove 'ipfs://' if present
   const cleanPath = fullPath.replace('ipfs://', '');
 
-  // List of IPFS gateways to try
-  const IPFS_GATEWAYS = [
-    'https://ipfs.io/ipfs/',
-    'https://gateway.ipfs.io/ipfs/',
-    'https://cloudflare-ipfs.com/ipfs/',
-  ];
-
-  // Use the first gateway (you could implement fallback logic if needed)
-  return `${IPFS_GATEWAYS[0]}${cleanPath}`;
+  return `https://ipfs.io/ipfs/${cleanPath}`;
 };
 
 /**
@@ -28,7 +20,7 @@ export const formatIpfsUrl = (imageUrl: string | string[]): string => {
  */
 export const getImageUrl = (image: string | string[] | null): string => {
   if (!image) {
-    return '/images/placeholder.png'; // Your default image path
+    return '/images/placeholder.png';
   }
 
   // Handle array format

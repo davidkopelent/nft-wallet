@@ -40,23 +40,6 @@ export const formatAda = (
 
   const amount = toAda(lovelace, decimals);
   const symbol = showSymbol ? '₳' : '';
-  
+
   return `${prefix}${symbol}${amount}${suffix}`;
 };
-
-/**
- * Shortens large ADA amounts (e.g., 1,234,567 -> 1.23M)
- * @param lovelace - Amount in lovelace
- * @returns Shortened ADA amount with appropriate suffix
- */
-export const shortenAda = (lovelace: number | string): string => {
-  const ada = Number(lovelace) / 1_000_000;
-  
-  if (ada >= 1_000_000) {
-    return formatAda((ada / 1_000_000).toFixed(2), { suffix: 'M' });
-  }
-  if (ada >= 1_000) {
-    return formatAda((ada / 1_000).toFixed(2), { suffix: 'K' });
-  }
-  return formatAda(lovelace);
-}; 

@@ -1,5 +1,3 @@
-'use client';
-
 import WalletSearch from "@/components/WalletSearch";
 
 export default function Home() {

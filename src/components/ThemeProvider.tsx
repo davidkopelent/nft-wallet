@@ -13,7 +13,7 @@ export default function ThemeProvider({
   // On initial render, check the stored preference
   useEffect(() => {
     const storedPreference = sessionStorage.getItem('darkMode');
-    
+
     // If there's a stored preference, use it
     if (storedPreference !== null) {
       setDarkMode(storedPreference === 'true');
@@ -28,7 +28,7 @@ export default function ThemeProvider({
   useEffect(() => {
     // Only proceed if darkMode has been determined
     if (darkMode === null) return;
-    
+
     if (darkMode) {
       document.documentElement.classList.add('dark');
       sessionStorage.setItem('darkMode', 'true');

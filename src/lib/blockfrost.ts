@@ -89,29 +89,6 @@ export async function getNFTMetadata(asset: string) {
 }
 
 /**
- * Get account info including registered stake address name
- * @param stakeAddress - The stake address to query
- */
-export async function getAccountInfo(stakeAddress: string) {
-  try {
-    // Use the registrations endpoint to get account metadata
-    const registrations = await blockfrostFetch<AccountRegistration[]>(`/accounts/${stakeAddress}/registrations`);
-
-    if (!registrations || registrations.length === 0) {
-      return null;
-    }
-
-    // Look for the most recent registration with metadata
-    const registration = registrations.find(reg => reg.action?.metadata?.name);
-    return registration || null;
-
-  } catch (error) {
-    console.error('Error fetching account info:', error);
-    return null;
-  }
-}
-
-/**
  * Get stake address from payment address
  * @param address - Cardano payment address
  */
@@ -134,56 +111,6 @@ export async function getNFTTransactions(assetId: string): Promise<Transaction[]
 }
 
 /**
- * Analyze a transaction to determine if it was an NFT buy/sell.
- * @param txHash - The transaction hash.
- * @param assetId - The NFT asset ID.
- */
-export async function analyzeNFTTransaction(txHash: string, assetId: string) {
-  try {
-    const txDetails = await blockfrostFetch<{ inputs: any[], outputs: any[] }>(`/txs/${txHash}/utxos`);
-    if (!txDetails) return null;
-
-    const inputs = txDetails.inputs;
-    const outputs = txDetails.outputs;
-
-    let sender = null;
-    let receiver = null;
-    let adaSent = 0;
-    let nftTransferred = false;
-
-    // Identify sender, receiver, ADA amount, and NFT transfer
-    for (const input of inputs) {
-      if (input.amount.some(a => a.unit === assetId)) {
-        sender = input.address; // Sender held the NFT
-      }
-      adaSent += input.amount
-        .filter(a => a.unit === 'lovelace')
-        .reduce((sum, a) => sum + parseInt(a.quantity), 0);
-    }
-
-    for (const output of outputs) {
-      if (output.amount.some(a => a.unit === assetId)) {
-        receiver = output.address; // Receiver got the NFT
-        nftTransferred = true;
-      }
-    }
-
-    if (nftTransferred && adaSent > 2_000_000) { // More than ~2 ADA (likely a sale)
-      return { type: 'buy', sender, receiver, adaPaid: adaSent / 1_000_000 };
-    }
-
-    if (nftTransferred && adaSent <= 2_000_000) {
-      return { type: 'transfer', sender, receiver };
-    }
-
-    return { type: 'unknown' };
-  } catch (error) {
-    console.error('Error analyzing NFT transaction:', error);
-    return null;
-  }
-}
-
-/**
  * Get wallet NFTs with pagination support
  * @param address - Wallet address
  * @param page - Page number (1-based)
@@ -193,16 +120,16 @@ export async function getWalletNFTs(address: string, page = 1, limit = 20): Prom
   try {
     // Get address info
     const addressInfo = await blockfrostFetch<WalletInfo>(`/addresses/${address}`);
-    
+
     if (!addressInfo) return [];
-    
+
     // Extract non-lovelace assets from the amount array
     const assets = addressInfo.amount.filter(asset => asset.unit !== 'lovelace') || [];
-    
+
     // Calculate pagination
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    
+
     // Fetch metadata for paginated assets
     const assetsWithMetadata = await Promise.all(
       assets.slice(startIndex, endIndex).map(async (asset) => {
@@ -215,7 +142,7 @@ export async function getWalletNFTs(address: string, page = 1, limit = 20): Prom
         };
       })
     );
-    
+
     return assetsWithMetadata || [];
   } catch (error) {
     console.error('Error fetching wallet NFTs:', error);
@@ -230,19 +157,16 @@ export async function getWalletNFTs(address: string, page = 1, limit = 20): Prom
  * @param limit - Number of transactions per page
  */
 export async function getWalletTransactions(
-  address: string, 
-  page = 1, 
+  address: string,
+  page = 1,
   limit = 25
 ): Promise<Transaction[]> {
   try {
-    // Calculate the offset (0-based)
-    const offset = (page - 1) * limit;
-    
     // Fetch paginated transactions
     const transactions = await blockfrostFetch<Transaction[]>(
       `/addresses/${address}/transactions?order=desc&page=${page}&count=${limit}`
     );
-    
+
     return transactions || [];
   } catch (error) {
     console.error('Error fetching wallet transactions:', error);

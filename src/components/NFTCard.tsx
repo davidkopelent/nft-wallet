@@ -14,10 +14,9 @@ export default function NFTCard({ nft, view, onClick }: NFTCardProps) {
   const imageUrl = getImageUrl(nft.metadata?.image);
 
   return (
-    <div 
-      className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-slate-100 dark:border-slate-700 ${
-        view === 'list' ? 'flex items-center' : ''
-      } hover:shadow-md transition-shadow cursor-pointer`}
+    <div
+      className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-slate-100 dark:border-slate-700 ${view === 'list' ? 'flex items-center' : ''
+        } hover:shadow-md transition-shadow cursor-pointer`}
       onClick={onClick}
     >
       <div className={view === 'list' ? 'w-24 h-24 relative flex-shrink-0' : 'aspect-square relative'}>

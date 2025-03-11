@@ -19,12 +19,12 @@ export default function NFTGallery({ assets: initialAssets, walletAddress }: NFT
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialAssets.length >= 20);
-  
+
   // Filter NFTs with metadata and images
   const nfts = useMemo(() => {
-    return assets.filter(asset => 
-      asset.metadata?.image && 
-      (!search || 
+    return assets.filter(asset =>
+      asset.metadata?.image &&
+      (!search ||
         asset.metadata.name?.toLowerCase().includes(search.toLowerCase()) ||
         asset.policyId?.toLowerCase().includes(search.toLowerCase())
       )
@@ -41,19 +41,19 @@ export default function NFTGallery({ assets: initialAssets, walletAddress }: NFT
 
   const loadMore = async () => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       const nextPage = page + 1;
       const moreAssets = await getWalletNFTs(walletAddress, nextPage);
-      
+
       if (moreAssets.length === 0) {
         setHasMore(false);
       } else {
         // Deduplicate assets by their unit (unique identifier)
         const existingUnits = new Set(assets.map(asset => asset.unit));
         const newAssets = moreAssets.filter(asset => !existingUnits.has(asset.unit));
-        
+
         if (newAssets.length === 0) {
           setHasMore(false);
         } else {
@@ -73,7 +73,7 @@ export default function NFTGallery({ assets: initialAssets, walletAddress }: NFT
     <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-slate-100 dark:border-slate-700 p-6 transition-all">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">NFT Collection</h2>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <div className="relative rounded-md shadow-sm">
             <input
@@ -89,25 +89,23 @@ export default function NFTGallery({ assets: initialAssets, walletAddress }: NFT
               </svg>
             </div>
           </div>
-          
+
           <div className="flex space-x-2">
             <button
               onClick={() => setView('grid')}
-              className={`px-3 py-2 rounded-md ${
-                view === 'grid' 
-                  ? 'bg-orange-gradient text-white' 
+              className={`px-3 py-2 rounded-md ${view === 'grid'
+                  ? 'bg-orange-gradient text-white'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              } transition-colors`}
+                } transition-colors`}
             >
               Grid
             </button>
             <button
               onClick={() => setView('list')}
-              className={`px-3 py-2 rounded-md ${
-                view === 'list' 
-                  ? 'bg-orange-gradient text-white' 
+              className={`px-3 py-2 rounded-md ${view === 'list'
+                  ? 'bg-orange-gradient text-white'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              } transition-colors`}
+                } transition-colors`}
             >
               List
             </button>
@@ -127,21 +125,20 @@ export default function NFTGallery({ assets: initialAssets, walletAddress }: NFT
         </div>
       ) : (
         <>
-          <div className={`grid ${
-            view === 'grid' 
-              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' 
+          <div className={`grid ${view === 'grid'
+              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
               : 'grid-cols-1 gap-4'
-          }`}>
+            }`}>
             {nfts.map((nft) => (
-              <NFTCard 
-                key={nft.unit} 
-                nft={nft} 
-                view={view} 
+              <NFTCard
+                key={nft.unit}
+                nft={nft}
+                view={view}
                 onClick={() => handleNFTClick(nft)}
               />
             ))}
           </div>
-          
+
           {hasMore && (
             <div className="mt-8 mb-2 text-center">
               <button
@@ -155,7 +152,7 @@ export default function NFTGallery({ assets: initialAssets, walletAddress }: NFT
           )}
         </>
       )}
-      
+
       {selectedNFT && (
         <NFTModal nft={selectedNFT} onClose={closeModal} />
       )}

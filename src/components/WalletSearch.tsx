@@ -5,22 +5,16 @@ import { useState } from 'react';
 
 interface WalletSearchProps {
   address?: string;
-  onAddressChange?: (address: string) => void;
 }
 
-export default function WalletSearch({ address = '', onAddressChange }: WalletSearchProps) {
+export default function WalletSearch({ address = '' }: WalletSearchProps) {
   const router = useRouter();
   const [inputValue, setInputValue] = useState(address);
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (inputValue.trim()) {
-      // If there's an onAddressChange callback, use it (for backward compatibility)
-      if (onAddressChange) {
-        onAddressChange(inputValue.trim());
-      }
-      
       // Navigate to the wallet page
       router.push(`/${inputValue.trim()}`);
     }
@@ -37,7 +31,7 @@ export default function WalletSearch({ address = '', onAddressChange }: WalletSe
               id="address"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="flex-1 min-w-0 block w-full px-3 py-2 border border-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-orange-gradient focus:border-orange-gradient sm:text-sm"
+              className="flex-1 min-w-0 block w-full px-3 py-2 border border-slate-100 dark:border-slate-700 bg-gray-50 dark:bg-gray-700 dark:text-white shadow-sm rounded-xl focus:outline-none focus:ring-orange-gradient focus:border-orange-gradient sm:text-sm"
               placeholder="Enter Cardano wallet address"
             />
             <button
