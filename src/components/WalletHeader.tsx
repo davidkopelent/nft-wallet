@@ -39,7 +39,7 @@ export default function WalletHeader({ address }: WalletHeaderProps) {
                     stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </g>
               </svg>
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? 'Copied!' : 'Copy address'}
             </button>
 
             {/* Accessibility announcement for screen readers */}
