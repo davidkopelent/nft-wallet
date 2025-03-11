@@ -1,6 +1,6 @@
 # Cardano Wallet Explorer
 
-Cardano Wallet Explorer is a modern web application that allows users to explore Cardano blockchain wallets and their associated assets, NFTs, and transactions using the Blockfrost API.
+Cardano Wallet Explorer is a web application for JamOnBread interview assignment that allows users to explore Cardano blockchain wallets and their associated assets, NFTs, and transactions using the Blockfrost API.
 
 ## Features
 
