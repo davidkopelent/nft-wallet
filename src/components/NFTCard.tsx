@@ -37,8 +37,7 @@ export default function NFTCard({ nft, view, onClick }: NFTCardProps) {
         <NFTImage
           src={imageUrl}
           alt={displayName}
-          fill
-          sizes={view === 'list' ? '96px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+          size={view === 'list' ? 'thumbnail' : 'card'}
           className="object-cover"
         />
       </div>
